@@ -4,6 +4,7 @@
         "description":"Sets Director settings and also modifies the LogOn.aspx page to pre-populate the domain field and print the windows servername in the footer. Add as many of the web.config application settings as you want like page timeouts and domain search settings.",
         "link":["DirectorReconfigureWithLogonMod.ps1"],
         "projectlink":"https://github.com/citrix/Powershell-Scripts",
-        "author":"Johan Greefkes"
+        "author":"Johan Greefkes",
+        "filename":"DirectorReconfigureWithLogonMod.ps1"
     }
 ]
