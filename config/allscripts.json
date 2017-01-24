@@ -6,5 +6,15 @@
         "projectlink":"https://github.com/citrix/Powershell-Scripts",
         "author":"Johan Greefkes",
         "filename":"DirectorReconfigureWithLogonMod.ps1"
+    },
+    {
+        "name":"Create Storefront Store (3.0)",
+        "description":"Powershell script that creates a storefront store based on parameters.",
+        "link":["https://github.com/citrix/Powershell-Scripts/blob/master/Create-Storefront3-Store.ps1"],
+        "projectlink":"https://github.com/citrix/Powershell-Scripts",
+        "author":"LASSE THESBJERG HOMANN",
+        "filename":"Create-Storefront3-Store.ps1"
     }
+    
+    
 ]
