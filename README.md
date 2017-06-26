@@ -16,18 +16,6 @@ git clone https://github.com/citrix/Powershell-Scripts.git
 
 The base prerequisite for these script is [Microsoft Powershell](https://msdn.microsoft.com/powershell), but please see each individual script folder for specific script prerequisites (product, API access, tools, etc)
 
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
 ## Built With
 
 * [Microsoft Powershell](https://msdn.microsoft.com/powershell)
