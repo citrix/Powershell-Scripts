@@ -7,10 +7,18 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ## Pull Request Process
 
-1. Comment changes to scripts in the appropiate location within the affected script.
-2. Document any external depencies that scripts would need to execute sucessfully.
-3. Update the README.md with details of changes if changes affect input, output parameters, file locations, help and if scripts using containers, container parameters.
-4. Increase the version numbers in any affected script and the README.md to the new version that this
+1. Each script(s) should be in its own sub-directory under the relevant product directory and contain a README.md, LICENSE.MD and script files. For example
+    ```
+      Storefront
+          Create Store
+              CreateNewStore.ps1
+              README.md
+              LICENSE.md
+    ```
+2. Comment changes to scripts in the appropiate location within the affected script.
+3. Document any external depencies that scripts would need to execute sucessfully.
+4. Update the README.md with details of changes if changes affect input, output parameters, file locations, help and if scripts using containers, container parameters.
+5. Increase the version numbers in any affected script and the README.md to the new version that this
    Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
 
 ## Code of Conduct
