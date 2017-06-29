@@ -22,7 +22,7 @@ The base prerequisite for these script is [Microsoft Powershell](https://msdn.mi
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, contributing and the process for submitting pull requests.
 
 ## Versioning
 
