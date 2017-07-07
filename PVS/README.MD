@@ -16,10 +16,12 @@ Must first install PVS Console software on the PVS server this script is fun fro
 Must use an account that is a local administrator on all PVS servers
 
 NEW IN THIS VERSION (2.0):
+
 Bug Fixes -- fixed several bugs reported by the user community 
+
 Intra-site Replication -- Running the script with the -INTRASITE switch (and required parameters -- see example below) will copy the .PVP, .VHD/X, and .AVHD/X files (including maintenance versions!) for each vDisk specified (or all vDisks on the server if the IS_vDisksToExport parameter is not used) from the IS_srcServer to all other PVS servers in the same site.
 
-EXAMPLES
+EXAMPLES:
 This script should be run (as administrator) on a PVS server after any vDisk or vDisk version is promoted to production.
 
 .\vDisk_Replicator_<Version>.ps1 -GUI
