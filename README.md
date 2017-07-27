@@ -1,5 +1,7 @@
 # Powershell-Scripts
 
+[![Join the chat at https://gitter.im/citrix/Powershell-Scripts](https://badges.gitter.im/citrix/Powershell-Scripts.svg)](https://gitter.im/citrix/Powershell-Scripts?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This repository hosts powershell scripts that target a variety of Citrix products. The script provided here are as is and not officially supported by Citrix Support. Please refer to each script folder for specifics on license and supportability.
 
 ## Getting Started
