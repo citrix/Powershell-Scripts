@@ -8,7 +8,7 @@ Simply execute the PowerShell script and output is returned on the feature usage
 From a powershell command prompt run the following
 
 ```powershell
-./XDFeatureDetectionv5.ps1
+./XDFeatureDetection_v105.ps1
 ```
 
 ## Prerequisites
