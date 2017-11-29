@@ -8,7 +8,7 @@ Simply execute the PowerShell script and output is returned on the feature usage
 From a powershell command prompt run the following
 
 ```powershell
-./XDFeatureDetection_v105.ps1
+./XDFeatureDetection.ps1
 ```
 
 ## Prerequisites
@@ -31,7 +31,7 @@ Initial release
 
 This script should be run (as administrator) on a delivery controller in a XenApp/XenDesktop site.
 
-.\XDFeatureDetection_v105.ps1
+.\XDFeatureDetection.ps1
 
 ## Versioning & Authors
 
