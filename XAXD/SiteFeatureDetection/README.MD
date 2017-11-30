@@ -23,9 +23,9 @@ Must use an account that is both a local administrator and Citrix administrator
 
 * [Microsoft Powershell](https://msdn.microsoft.com/powershell)
 
-## NEW IN THIS VERSION (1.0.5)
+## NEW IN THIS VERSION (1.1.0)
 
-Initial release
+Cleaned up formatting, adjusted logic, now including feature eligibility
 
 ## EXAMPLES
 
@@ -36,10 +36,10 @@ This script should be run (as administrator) on a delivery controller in a XenAp
 ## Versioning & Authors
 
 VERSION
-1.0.5
+1.1.0
 
 DATE MODIFIED
-10/20/2017
+11/30/2017
 
 AUTHOR
 Allen Furmanski, Citrix Product Marketing
