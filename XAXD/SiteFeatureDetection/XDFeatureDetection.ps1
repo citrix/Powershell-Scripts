@@ -1,18 +1,23 @@
-﻿###################################
+###################################
 #######
 #######
 ####### XA/XD Feature Detection
 #######
 ####### Detects key features in
-####### use within a site
+####### use within a site along
+####### with entitlement info
 #######
-####### Version 1.0.5
+####### Version 1.1.0
+#######
+####### 11-30-2017
 #######
 #######
 ###################################
 
-
+# Load Citrix snap-ins
 asnp citrix*
+
+# Get overall site configuration
 $siteConfig = Get-ConfigSite
 
 
@@ -51,15 +56,85 @@ function CheckPVSinUse ()
     }
 }
 
+# Check if XenDesktop is the product in use
+function CheckXenDesktop ()
+{
+    if($siteConfig.ProductCode -ne 'XDT')
+    {    
+        return $false
+    }
+    else
+    {
+        return $true
+    }
+
+}
+
+
+# Check if not using XD VDI Edition
+function CheckNotVDIEdition ()
+{
+    if($siteConfig.ProductEdition -ne 'VDI')
+    {    
+        return $true
+    }
+    else
+    {
+        return $false
+    }
+
+}
+
+# Check if eligible for platinum-level features
+function CheckPlatinumFeature ()
+{
+    if($siteConfig.ProductEdition -ne 'PLT')
+    {    
+        return $false
+    }
+    else
+    {
+        return $true
+    }
+
+}
+
+# Check if eligible for enterprise-level features and higher
+function CheckEnterpriseFeature ()
+{
+    if(($siteConfig.ProductEdition -ne 'PLT')-and($siteConfig.ProductEdition -ne 'ENT'))
+    {    
+        return $false
+    }
+    else
+    {
+        return $true
+    }
+
+}
+
+# Check if eligible for XD enterprise-level features and higher
+function CheckXDEnterpriseFeature ()
+{
+    if(($siteConfig.Code -ne 'XDT')-and($siteConfig.ProductEdition -ne 'PLT')-and($siteConfig.ProductEdition -ne 'ENT'))
+    {    
+        return $false
+    }
+    else
+    {
+        return $true
+    }
+
+}
+
 # Detect if delegated administration is in use
 function CheckDelegatedAdmininUse ()
 {
     $GetAdmins = Get-AdminAdministrator
-    $DelegatedAdmins = ($GetAdmins.Rights -ne '{Full Administrator:All}').count
 
-    If ($DelegatedAdmins -gt 0)
+    If ($GetAdmins.count -gt 1)
     {
-        # One or more admins exist that are delegated without full admin permission
+        # Multiple administrator accounts exist
         return $true
     }
     else
@@ -101,17 +176,26 @@ function CheckRemotePCinUse ()
     }
 }
 
-# Detect cloud connection in use
+# Detect cloud connections in use
 function CheckCloudConnectioninUse ()
 {
     cd xdhyp:\connections
     $HostingConnections = dir
-    $TotalCloudConnections = ($HostingConnections.PluginId -eq 'AzureRmFactory').count + ($HostingConnections.PluginId -eq 'AWSMachineManagerFactory').count
 
-    If ($TotalCloudConnections -gt 0)
+    # Only proceed if there are actual hosting connections
+    If ($HostingConnections.count -gt 0)
     {
-        # One or more cloud connections exist
-        return $true
+        $TotalCloudConnections = ($HostingConnections.PluginId -eq 'AzureRmFactory').count + ($HostingConnections.PluginId -eq 'AWSMachineManagerFactory').count
+
+        If ($TotalCloudConnections -gt 0)
+        {
+            # One or more cloud connections exist
+            return $true
+        }
+        else
+        {
+            return $false
+        }
     }
     else
     {
@@ -171,25 +255,97 @@ function CheckAppsinUse ()
 
 # High-level site info
 Write-Host "Site Name:`t",$siteConfig.SiteName
-Write-Host "Product:`t",$siteConfig.ProductCode
+if($siteConfig.ProductCode -eq 'XDT')
+{
+    # XDT code is XenDesktop
+    Write-Host "Product:`t XenDesktop"
+}
+else
+{
+    # Other code of MPS is XenApp
+    Write-Host "Product:`t XenApp"
+}
 Write-Host "Edition:`t",$siteConfig.ProductEdition
 Write-Host "Version:`t",$siteConfig.ProductVersion
 Write-Host ""
-
-Write-Host "MCS in Use:`t",$(CheckMCSinUse)
-Write-Host "PVS in Use:`t",$(CheckPVSinUse)
 Write-Host ""
 
-Write-Host "Delegated Admins in Use:`t",$(CheckDelegatedAdmininUse)
-Write-Host "Zones in Use:`t`t`t`t",$(CheckZonesinUse)
+Write-Host "Machine Creation Services (MCS)"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckMCSinUse)
+Write-Host "Edition:`t`t`t All"
+Write-Host "Entitled?:`t`t`t True"
+Write-Host ""
 Write-Host ""
 
-Write-Host "Remote PC Access in Use:`t",$(CheckRemotePCinUse)
-Write-Host "Cloud Connections in Use:`t",$(CheckCloudConnectioninUse)
+
+Write-Host "Provisioning Services (PVS)"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckPVSinUse)
+Write-Host "Edition:`t`t`t ENT,PLT"
+Write-Host "Entitled?:`t`t`t",$(CheckEnterpriseFeature)
+Write-Host ""
 Write-Host ""
 
-Write-Host "SCOM Packs in Use:`t`t`t",$(CheckSCOMPacksinUse)
-Write-Host "VDI in Use:`t`t`t`t`t",$(CheckVDIinUse)
+
+Write-Host "Delegated Administration"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckDelegatedAdmininUse)
+Write-Host "Edition:`t`t`t ENT,PLT"
+Write-Host "Entitled?:`t`t`t",$(CheckEnterpriseFeature)
+Write-Host ""
 Write-Host ""
 
-Write-Host "Published Apps in Use:`t`t",$(CheckAppsinUse)
+
+Write-Host "Zones"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckZonesinUse)
+Write-Host "Edition:`t`t`t All"
+Write-Host "Entitled?:`t`t`t True"
+Write-Host ""
+Write-Host ""
+
+
+Write-Host "Remote PC Access"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckRemotePCinUse)
+Write-Host "Edition:`t`t`t XD ENT,PLT"
+Write-Host "Entitled?:`t`t`t",$(CheckXDEnterpriseFeature)
+Write-Host ""
+Write-Host ""
+
+
+Write-Host "Cloud Connections"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckCloudConnectioninUse)
+Write-Host "Edition:`t`t`t ENT,PLT"
+Write-Host "Entitled?:`t`t`t",$(CheckEnterpriseFeature)
+Write-Host ""
+Write-Host ""
+
+
+Write-Host "SCOM Management Packs"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckSCOMPacksinUse)
+Write-Host "Edition:`t`t`t PLT"
+Write-Host "Entitled?:`t`t`t",$(CheckPlatinumFeature)
+Write-Host ""
+Write-Host ""
+
+
+Write-Host "VDI Desktops"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckVDIinUse)
+Write-Host "Edition:`t`t`t XD VDI,ENT,PLT"
+Write-Host "Entitled?:`t`t`t",$(CheckXenDesktop)
+Write-Host ""
+Write-Host ""
+
+
+Write-Host "Published Applications"
+Write-Host "--------------------------------"
+Write-Host "In Use?:`t`t`t",$(CheckAppsinUse)
+Write-Host "Edition:`t`t`t All Except XD VDI"
+Write-Host "Entitled?:`t`t`t",$(CheckNotVDIEdition)
+Write-Host ""
+Write-Host ""
