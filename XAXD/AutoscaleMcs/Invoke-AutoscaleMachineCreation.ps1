@@ -33,9 +33,9 @@
     does not start a new instance if this one is already running.
 
 .PARAMETER DeliveryGroupName
-    Semi-colon-separated list of the Delivery Group Name(s) to monitor and take actions on
-    When performining initialization or updating (e.g. passing in MachineCatalog etc.) only
-    one Delivery Group at a time is supported. The exception is 'EventLogSource' in which
+    Semi-colon-separated list of the Delivery Group Name(s) to monitor and take actions on.
+    When performining initialization or updating (e.g. passing in Watermarks, MaximumCreatedMachines, etc.)
+    only one Delivery Group at a time is supported. The exception is 'EventLogSource' in which
     case it will be set for all the passed in Delivery Groups.
 .PARAMETER XdProfileName
     Name of the profile to use for remote authentication with Citrix Servers
@@ -51,12 +51,14 @@
 .PARAMETER EventLogSource
     Name of the Event Log Source to write to. It is important to pass a meaningful
     name here in order to find the logs.
+.PARAMETER MaximumCreatedMachines
+    The maximum amount of machines that will be created in the specified delivery group
 
 .NOTES
-    Version      : 1.0.0
+    Version      : 1.0.1
     Author       : Citrix Systems, Inc.
-    Creation Date: 10 October 2019
-    Log          : Initial Release
+    Creation Date: 07 November 2019
+    Log          : Added MaximumCreatedMachines parameter
 
 .EXAMPLE
     Invoke-AutoscaleMachineCreation -DeliveryGroupName DevTest -XdProfileName TestProfile
@@ -80,7 +82,9 @@ param(
     [Parameter(Mandatory=$false)]
     [String]$ScriptTag = 'AutoscaleScripted',
     [Parameter(Mandatory=$false)]
-    [String]$EventLogSource = $null
+    [String]$EventLogSource = $null,
+    [Parameter(Mandatory=$false)]
+    [Int]$MaximumCreatedMachines = -1
 )
 
 # ============================================================================
@@ -102,19 +106,20 @@ Add-Type -TypeDefinition @"
 
 # MetaData Names -------------------------------------------------------------
 $AutoscaleMetadataNames = @{
-    'State'                 = 'Citrix_AutoscaleScript_State';
-    'CleanExit'             = 'Citrix_AutoscaleScript_CleanExit';
-    'Tag'                   = 'Citrix_AutoscaleScript_MachineTag';
-    'MachineCatalogName'    = 'Citrix_AutoscaleScript_MachineCatalogName';
-    'IdentityPoolUid'       = 'Citrix_AutoscaleScript_IdentityPoolUid';
-    'ProvSchemeUid'         = 'Citrix_AutoscaleScript_ProvSchemeUid';
-    'ProvTask'              = 'Citrix_AutoscaleScript_ProvTaskId';
-    'HighWatermark'         = 'Citrix_AutoscaleScript_HighWatermark';
-    'LowWatermark'          = 'Citrix_AutoscaleScript_LowWatermark';
-    'CurrentLoad'           = 'Citrix_AutoscaleScript_CurrentLoad';
-    'Actions'               = 'Citrix_AutoscaleScript_ActionsTaken';
-    'EventLogSource'        = 'Citrix_AutoscaleScript_EventLogSource';
-    'LastUpdateTime'        = 'Citrix_AutoscaleScript_LastUpdateTime';
+    'State'                  = 'Citrix_AutoscaleScript_State';
+    'CleanExit'              = 'Citrix_AutoscaleScript_CleanExit';
+    'Tag'                    = 'Citrix_AutoscaleScript_MachineTag';
+    'MachineCatalogName'     = 'Citrix_AutoscaleScript_MachineCatalogName';
+    'IdentityPoolUid'        = 'Citrix_AutoscaleScript_IdentityPoolUid';
+    'ProvSchemeUid'          = 'Citrix_AutoscaleScript_ProvSchemeUid';
+    'ProvTask'               = 'Citrix_AutoscaleScript_ProvTaskId';
+    'HighWatermark'          = 'Citrix_AutoscaleScript_HighWatermark';
+    'LowWatermark'           = 'Citrix_AutoscaleScript_LowWatermark';
+    'MaximumCreatedMachines' = 'Citrix_AutoscaleScript_MaximumCreatedMachines';
+    'CurrentLoad'            = 'Citrix_AutoscaleScript_CurrentLoad';
+    'Actions'                = 'Citrix_AutoscaleScript_ActionsTaken';
+    'EventLogSource'         = 'Citrix_AutoscaleScript_EventLogSource';
+    'LastUpdateTime'         = 'Citrix_AutoscaleScript_LastUpdateTime';
 }
 
 # States ---------------------------------------------------------------------
@@ -134,6 +139,16 @@ function Watch-AutoscaleLoadBalance
 
     if ($currentLoad -gt $highWm)
     {
+        $machines = @(Get-BrokerMachine -Tag ($DeliveryGroup.MetadataMap[$AutoscaleMetadataNames['Tag']]) -DesktopGroupUid $DeliveryGroup.Uid -Property Uid)
+        $maxCount = [int]($DeliveryGroup.MetadataMap[$AutoscaleMetadataNames['MaximumCreatedMachines']])
+
+        if ($maxCount -gt 0 -and $machines.Count -ge $maxCount)
+        {
+            # We cannot create any more machines
+            Write-Log "Cannot provision any more machines. Upper limit of [$maxCount] has been reached." -DgName $DeliveryGroup.Name
+            return
+        }
+
         Write-Log "Provisioning more machines. Current Usage [$currentLoad] >= High Watermark [$highWm]." -DgName $DeliveryGroup.Name
         $map = @{ `
             ($AutoscaleMetadataNames['CurrentLoad']) = [string]($currentLoad); `
@@ -163,7 +178,21 @@ function Publish-Machines
 {
     param([object]$DeliveryGroup)
 
+    $maxCount = [int]($DeliveryGroup.MetadataMap[$AutoscaleMetadataNames['MaximumCreatedMachines']])
     $machinesToCreate = (Measure-HighWatermarkDelta $DeliveryGroup)
+
+    if ($maxCount -gt 0)
+    {
+        $machines = @(Get-BrokerMachine -Tag ($DeliveryGroup.MetadataMap[$AutoscaleMetadataNames['Tag']]) -DesktopGroupUid $DeliveryGroup.Uid -Property Uid)
+        $machinesToCreate = [math]::Min(($maxCount - $machines.Count), $machinesToCreate)
+
+        if ($machinesToCreate -le 0)
+        {
+            Write-Log "Cannot provision any more machines, reached limit of [$maxCount]" -DgName $DeliveryGroup.Name
+            $DeliveryGroup | Set-BrokerDesktopGroupMetadata -Name $AutoscaleMetadataNames['State'] -Value ([AutoscaleScriptState]::MonitorUsage)
+            return
+        }
+    }
 
     $adAccounts = New-AcctADAccount -IdentityPoolUid ($DeliveryGroup.MetadataMap[$AutoscaleMetadataNames['IdentityPoolUid']]) -Count $machinesToCreate
 
@@ -520,6 +549,18 @@ function Edit-Watermarks
     $DeliveryGroup | Set-BrokerDesktopGroupMetadata -Map $map
 }
 
+function Edit-MaximumCreatedMachines
+{
+    param([object]$DeliveryGroup)
+
+    # Update Maximum Created Machines
+    $map = @{ `
+        ($AutoscaleMetadataNames['MaximumCreatedMachines']) = [string]($MaximumCreatedMachines);  `
+    }
+
+    $DeliveryGroup | Set-BrokerDesktopGroupMetadata -Map $map
+}
+
 function Write-Log 
 {
     param(
@@ -593,7 +634,7 @@ ForEach ($name in $dgNames)
             if ($dgNames.Length -ne 1)
             {
                 Write-Log "Cannot update the watermarks or Machine Catalogs for more than one delivery group at a time"
-                continue
+                break
             }
 
             $state = Initialize-StateMachine $dg
@@ -612,13 +653,29 @@ ForEach ($name in $dgNames)
             if ($dgNames.Length -ne 1)
             {
                 Write-Log "Cannot update the watermarks or Machine Catalogs for more than one delivery group at a time"
-                continue
+                break
             }
 
             # Update the watermarks in the delivery group
             Edit-Watermarks $dg
 
             # Reload Delivery Group after editing watermarks
+            $dg = Get-BrokerDesktopGroup -Uid $dg.Uid
+        }
+
+        if ($MaximumCreatedMachines -ge 0)
+        {
+            # Enforce restriction (Initialization\Update of Delivery Group can only occur if there is exactly one delivery group)
+            if ($dgNames.Length -ne 1)
+            {
+                Write-Log "Cannot update the MaximumCreatedMachines more than one delivery group at a time"
+                break
+            }
+
+            # Update MaximumCreatedMachines
+            Edit-MaximumCreatedMachines $dg
+
+            # Reload Delivery Group after editing MaximumCreatedMachines
             $dg = Get-BrokerDesktopGroup -Uid $dg.Uid
         }
 

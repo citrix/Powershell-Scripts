@@ -5,7 +5,10 @@ Machine Creation Services.
 
 ## Getting Started
 
-To get assistance with using the script, invoke the help command.
+Official documentation of this script is available here: https://docs.citrix.com/en-us/citrix-virtual-apps-desktops-service/manage-deployment/autoscale.html#dynamically-provision-machines-with-autoscale
+
+
+A detailed description is also available within the script itself
 
 ```powershell
 Get-Help .\Invoke-AutoscaleMachineCreation.ps1
@@ -25,9 +28,9 @@ Other pre-requisites are detailed in the help text.
 
 * [Microsoft Powershell](https://msdn.microsoft.com/powershell)
 
-## NEW IN THIS VERSION (1.0.0)
+## NEW IN THIS VERSION (1.0.1)
 
-Initial Release version
+Ability to limit the maximum number of machines created by this script
 
 ## EXAMPLES
 
@@ -39,10 +42,10 @@ domain as the machines that will be created\added.
 ## Versioning & Authors
 
 VERSION
-1.0.0
+1.0.1
 
 DATE MODIFIED
-10/24/2019
+11/7/2019
 
 AUTHOR
 Cristopher Jimenez, Engineering
