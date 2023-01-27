@@ -1,4 +1,4 @@
-# Get-ProvVmInUnknownPowerState: Diagnose and Recover VMs in an Unknow Power State.
+# Get-ProvVmInUnknownPowerState
 
 This script is to diagnose and (semi-) automatically resolve VMs on Citrix Virtual Apps and Desktops (CVAD) in an unknown power state. 
 
