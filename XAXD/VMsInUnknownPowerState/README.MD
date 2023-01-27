@@ -6,6 +6,7 @@ This script is to diagnose and (semi-) automatically resolve VMs on Citrix Virtu
 ## Getting Started
 
 Official documentation of this script is available here: https://info.citrite.net/x/84xlXg 
+
 (This link is an internal blog link. This will be updated after public blog is published.)
 
 ## Context and Problems
@@ -49,4 +50,5 @@ VERSION
 
 CONTRIBUTORS
 Haan Mo Johng, Engineering
+
 Charlie Wang, Engineering
