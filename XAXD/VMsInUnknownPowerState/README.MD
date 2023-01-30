@@ -27,6 +27,16 @@ Get-ProvVmInUnknownPowerState diagnoses the VMs on CVAD in an unknown power stat
 2. Scenario 2: the VMs on the hypervisor are deleted.
 3. Scenario 3: the IDs of VMs on CVAD mismatches the corresponding IDs of the VM on hypervisors. 
 
+Get-ProvVmInUnknownPowerState can take a hypervisor connection name, a broker catalog name, and/or "-Fix" as input.
+
+1. If either a hypervisor connection name or a broker catalog is given, then Get-ProvVmInUnknownPowerState reports the VMs in an unknown power state associated with the hypervisor connection name or the broker catalog.
+2. If both a hypervisor connection name and a broker catalog are given, then Get-ProvVmInUnknownPowerState reports the VMs associated with the broker catalog, because the VMs on the catalog is a subset of the VMs on the hypervisor connection
+3. Without the "-Fix" parameter, the admin can get the report that includes the list of the VMs with the unknown power states together with the causes and suggestions.
+4. With the parameter "-Fix", the admin can get the report, and the script automatically resolved the issue of scenario 3 by updating the IDs of VMs. 
+
+In case of scenario 1 and 2, Get-ProvVmInUnknownPowerState reports the causes of the unknown power state and provide suggestions to help admins fix the issues, such as correcting the credentials or deleting the VMs on CVAD. In the case of scenario 3, Get-ProvVmInUnknownPowerState reports the causes and suggestions. If the "-Fix" parameter is specified, Get-ProvVmInUnknownPowerState fixes the causes of scenario 3 automatically.
+
+The scenario 1, 2, and 3 are exclusive. If the connection is unavailable, it is not possible to access the hypervisor; consequently, check whether the corresponding VM on the hypervisor is deleted or the IDs are matched.
 
 ## Prerequisites
 
