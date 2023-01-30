@@ -23,9 +23,9 @@ The current practice to resolve the issue is helping the customers manually chan
 
 Get-ProvVmInUnknownPowerState diagnoses the VMs on CVAD in an unknown power state, reports the causes, and (semi-) automatically fixes the causes. Specifically, Get-ProvVmInUnknownPowerState utilizes the names of VMs on CVAD to find the corresponding VMs on hypervisors and check three scenarios below that can make the power state of the VMs unknown.
 
-Scenario 1: the state of the hypervisor connection is unavailable. such as connection credentials being invalid.
-Scenario 2: the VMs on the hypervisor are deleted.
-Scenario 3: the IDs of VMs on CVAD mismatches the corresponding IDs of the VM on hypervisors. 
+1. Scenario 1: the state of the hypervisor connection is unavailable. such as connection credentials being invalid.
+2. Scenario 2: the VMs on the hypervisor are deleted.
+3. Scenario 3: the IDs of VMs on CVAD mismatches the corresponding IDs of the VM on hypervisors. 
 
 
 ## Prerequisites
