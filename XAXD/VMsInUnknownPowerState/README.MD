@@ -56,9 +56,10 @@ The detailed examples are described in the blog.
 ## Versioning & Authors
 
 VERSION
-1.0.0
+1.0.1
 
 CONTRIBUTORS
+
 Haan Mo Johng, Engineering
 
 Charlie Wang, Engineering
